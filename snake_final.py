@@ -2,7 +2,7 @@
 import pygame, random
 from pygame.locals import *
 
-# Helper functions
+# Funções auxiliares
 def on_grid_random():
     x = random.randint(0,59)
     y = random.randint(0,59)
@@ -11,7 +11,7 @@ def on_grid_random():
 def collision(c1, c2):
     return (c1[0] == c2[0]) and (c1[1] == c2[1])
 
-# Macro definition for snake movement.
+# Definição de macro para o movimento da cobra.
 UP = 0
 RIGHT = 1
 DOWN = 2
@@ -23,7 +23,7 @@ pygame.display.set_caption('Snake')
 
 snake = [(200, 200), (210, 200), (220,200)]
 snake_skin = pygame.Surface((10,10))
-snake_skin.fill((255,255,255)) #White
+snake_skin.fill((255,255,255)) # Branco
 
 apple_pos = on_grid_random()
 apple = pygame.Surface((10,10))
@@ -59,12 +59,12 @@ while not game_over:
         snake.append((0,0))
         score = score + 1
         
-    # Check if snake collided with boundaries
+    # Verifique se a cobra colidiu com os limites
     if snake[0][0] == 600 or snake[0][1] == 600 or snake[0][0] < 0 or snake[0][1] < 0:
         game_over = True
         break
     
-    # Check if the snake has hit itself
+    # Verifique se a cobra se acertou
     for i in range(1, len(snake) - 1):
         if snake[0][0] == snake[i][0] and snake[0][1] == snake[i][1]:
             game_over = True
@@ -76,7 +76,7 @@ while not game_over:
     for i in range(len(snake) - 1, 0, -1):
         snake[i] = (snake[i-1][0], snake[i-1][1])
         
-    # Actually make the snake move.
+    # Na verdade, faça a cobra se mover.
     if my_direction == UP:
         snake[0] = (snake[0][0], snake[0][1] - 10)
     if my_direction == DOWN:
@@ -89,9 +89,9 @@ while not game_over:
     screen.fill((0,0,0))
     screen.blit(apple, apple_pos)
     
-    for x in range(0, 600, 10): # Draw vertical lines
+    for x in range(0, 600, 10): # Desenhe linhas verticais
         pygame.draw.line(screen, (40, 40, 40), (x, 0), (x, 600))
-    for y in range(0, 600, 10): # Draw vertical lines
+    for y in range(0, 600, 10): # Desenhe linhas verticais
         pygame.draw.line(screen, (40, 40, 40), (0, y), (600, y))
     
     score_font = font.render('Score: %s' % (score), True, (255, 255, 255))
