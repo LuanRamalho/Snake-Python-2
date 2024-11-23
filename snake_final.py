@@ -1,15 +1,28 @@
-##### 10 - Game over ####
-import pygame, random
+import pygame, random, json
 from pygame.locals import *
 
 # Funções auxiliares
 def on_grid_random():
-    x = random.randint(0,59)
-    y = random.randint(0,59)
+    x = random.randint(0, 59)
+    y = random.randint(0, 59)
     return (x * 10, y * 10)
 
 def collision(c1, c2):
     return (c1[0] == c2[0]) and (c1[1] == c2[1])
+
+# Carrega o HighScore de um arquivo JSON
+def load_highscore():
+    try:
+        with open('highscore.json', 'r') as f:
+            data = json.load(f)
+            return data.get("highscore", 0)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return 0
+
+# Salva o HighScore em um arquivo JSON
+def save_highscore(highscore):
+    with open('highscore.json', 'w') as f:
+        json.dump({"highscore": highscore}, f)
 
 # Definição de macro para o movimento da cobra.
 UP = 0
@@ -21,13 +34,13 @@ pygame.init()
 screen = pygame.display.set_mode((600, 600))
 pygame.display.set_caption('Snake')
 
-snake = [(200, 200), (210, 200), (220,200)]
-snake_skin = pygame.Surface((10,10))
-snake_skin.fill((255,255,255)) # Branco
+snake = [(200, 200), (210, 200), (220, 200)]
+snake_skin = pygame.Surface((10, 10))
+snake_skin.fill((255, 255, 255))  # Branco
 
 apple_pos = on_grid_random()
-apple = pygame.Surface((10,10))
-apple.fill((255,0,0))
+apple = pygame.Surface((10, 10))
+apple.fill((255, 0, 0))
 
 my_direction = LEFT
 
@@ -35,6 +48,9 @@ clock = pygame.time.Clock()
 
 font = pygame.font.Font('freesansbold.ttf', 18)
 score = 0
+
+# Carrega o HighScore
+highscore = load_highscore()
 
 game_over = False
 while not game_over:
@@ -56,8 +72,12 @@ while not game_over:
 
     if collision(snake[0], apple_pos):
         apple_pos = on_grid_random()
-        snake.append((0,0))
-        score = score + 1
+        snake.append((0, 0))
+        score += 1
+        
+        # Atualiza o HighScore
+        if score > highscore:
+            highscore = score
         
     # Verifique se a cobra colidiu com os limites
     if snake[0][0] == 600 or snake[0][1] == 600 or snake[0][0] < 0 or snake[0][1] < 0:
@@ -86,23 +106,31 @@ while not game_over:
     if my_direction == LEFT:
         snake[0] = (snake[0][0] - 10, snake[0][1])
     
-    screen.fill((0,0,0))
+    screen.fill((0, 0, 0))
     screen.blit(apple, apple_pos)
     
-    for x in range(0, 600, 10): # Desenhe linhas verticais
+    for x in range(0, 600, 10):  # Desenhe linhas verticais
         pygame.draw.line(screen, (40, 40, 40), (x, 0), (x, 600))
-    for y in range(0, 600, 10): # Desenhe linhas verticais
+    for y in range(0, 600, 10):  # Desenhe linhas horizontais
         pygame.draw.line(screen, (40, 40, 40), (0, y), (600, y))
     
     score_font = font.render('Score: %s' % (score), True, (255, 255, 255))
     score_rect = score_font.get_rect()
-    score_rect.topleft = (600 - 120, 10)
+    score_rect.topleft = (10, 10)
     screen.blit(score_font, score_rect)
+
+    highscore_font = font.render('HighScore: %s' % (highscore), True, (255, 255, 255))
+    highscore_rect = highscore_font.get_rect()
+    highscore_rect.topleft = (10, 30)
+    screen.blit(highscore_font, highscore_rect)
     
     for pos in snake:
-        screen.blit(snake_skin,pos)
+        screen.blit(snake_skin, pos)
 
     pygame.display.update()
+
+# Salva o HighScore antes de encerrar
+save_highscore(highscore)
 
 while True:
     game_over_font = pygame.font.Font('freesansbold.ttf', 75)
